@@ -1,6 +1,12 @@
 Twiml-Tester
 ============
 
+## Running
+
+`docker-compose up`
+
+The tester is available at `http://localhost`
+
 ## Basics 
 
 - This tool may be used to test Twiml-based IVR applications.  It works by cURL'ing the initial endpoint entered, parsing the received XML, and presenting a form for data entry.  This tool supports the `<Say>` and `<Gather>` primary verbs as well as the `<Hangup>` and `<Redirect>` secondary verbs.
