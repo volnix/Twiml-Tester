@@ -10,7 +10,7 @@
 		<!-- Le styles -->
 		<link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="styles.css" />
-		
+
 		<!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
 		<!--[if lt IE 9]>
 		<script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -40,11 +40,11 @@
 			{
 				$_SESSION['url'] = $_POST['url'];
 			}
-			
+
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_URL, $_POST['url']);
-			
+
 			// if we have user input, then post it
 			if ($_POST['user_input'])
 			{
@@ -52,7 +52,7 @@
 				curl_setopt($ch, CURLOPT_POST, true);
 				curl_setopt($ch, CURLOPT_POSTFIELDS, $post_string);
 			}
-			
+
 			curl_setopt($ch, CURLOPT_HEADER, false);
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -61,10 +61,10 @@
 			if(curl_error($ch))
 			{
 				echo "Curl error: " . curl_error($ch);
-				
-				break;
+
+				exit;
 			}
-			
+
 			if (!preg_match('/\<Say[\s\d\w\=\"\-]*\>(.+)\<\/Say\>/i', $result, $say_matches))
 			{
 				echo "Parsing error.  No &lt;Say&gt; block.";
@@ -74,23 +74,23 @@
 				$say = $say_matches[1];
 				echo "<p><b>{$say}</b></p>";
 			}
-			
+
 			$raw = htmlspecialchars($result);
 			echo "<p style='text-align:center'><a id='show_raw' href='javascript:show_raw();' class='btn btn-info'>Show Raw Response</a><a id='hide_raw' href='javascript:hide_raw();' class='btn btn-warning'>Hide Raw Response</a><br/><br/><span id='raw'>$raw</span></p>";
-			
+
 			// has input
 			if (preg_match('/\<Gather(.+)/i', $result))
 			{
 				if (!preg_match('/action\=\"(.+?)\"\>/i', $result, $action_matches))
 				{
 					echo "Parsing error.  No action set.";
-					break;
+					exit;
 				}
-				
+
 				$url = $action_matches[1];
-				
+
 				preg_match('/numDigits\=\"([0-9]+)\"/', $result, $num_matches);
-				
+
 				$num_digs = $num_matches[1];
 			?>
 				<form method="post" action="index.php">
@@ -98,7 +98,7 @@
 					<p>
 						<span>
 							<input type="text" class="input-large" name="user_input" placeholder="Enter response here..." maxlength="<?= $num_digs ?>"/>
-							<button type="submit" class="btn btn-success">Submit</button> 
+							<button type="submit" class="btn btn-success">Submit</button>
 						</span>
 						<br/>
 						<br/>
@@ -111,11 +111,11 @@
 			{
 				echo '<p class="help-block">*This query had no &lt;Gather&gt; block.</p>';
 			}
-			
+
 			// finally, check if there's a redirect.  then set a js timer for 5 seconds and then GO! to the redirect
 			if(preg_match('/\<Redirect\>(.+?)\<\/Redirect\>/i', $result, $redirect_matches))
 			{
-				$redirect_to = $redirect_matches[1];			
+				$redirect_to = $redirect_matches[1];
 			?>
 				<p>There is a redirect within this request.  I will navigate there in about <b><span id="time_left"></span></b> seconds.<br/><b>New location: </b><?= $redirect_to ?></p>
 				<form id="redirect_form" action="index.php" method="post">
@@ -126,12 +126,12 @@
 					show_time();
 					var myVar=setInterval(function(){go_to_redirect()},(seconds * 1000));
 					var myVar=setInterval(function(){show_time()},1000);
-					
+
 					function go_to_redirect()
 					{
 						document.getElementById("redirect_form").submit();
 					}
-					
+
 					function show_time()
 					{
 						$('#time_left').html(seconds);
@@ -140,7 +140,7 @@
 				</script>
 			<?
 			}
-			
+
 		}
 		else
 		{
@@ -155,19 +155,19 @@
 		?>
 		</div>
 	</body>
-	
+
 	<script>
 		$(document).ready(function() {
 			hide_raw();
 		});
-		
+
 		function show_raw()
 		{
 			$('#show_raw').hide();
 			$('#hide_raw').show();
 			$('#raw').show();
 		}
-		
+
 		function hide_raw()
 		{
 			$('#raw').hide();
