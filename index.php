@@ -57,22 +57,45 @@
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			$result = curl_exec($ch);
-			curl_close($ch);
+
 			if(curl_error($ch))
 			{
 				echo "Curl error: " . curl_error($ch);
-
 				exit;
 			}
+			curl_close($ch);
 
-			if (!preg_match('/\<Say[\s\d\w\=\"\-]*\>(.+)\<\/Say\>/i', $result, $say_matches))
-			{
-				echo "Parsing error.  No &lt;Say&gt; block.";
-			}
-			else
-			{
-				$say = $say_matches[1];
-				echo "<p><b>{$say}</b></p>";
+			$xml_data = simplexml_load_string($result);
+			if ($xml_data === false) {
+				echo 'Parse Error: Unable to parse XML from response';
+			} else {
+				$play_nodes = $xml_data->xpath("//Play");
+				$say_nodes = $xml_data->xpath("//Say");
+				if (!$play_nodes && !$say_nodes) {
+					echo 'Validation Error: No &lt;Say&gt; or &lt;Play&gt; nodes found in response.';
+				}
+
+				if (count($play_nodes)) {
+					echo "<h3>&lt;Play&gt; nodes</h3>";
+					foreach($play_nodes as $play_node): ?>
+						<figure>
+							<figcaption><?= (string)$play_node ?></figcaption>
+							<audio
+									controls
+									src="<?= (string)$play_node ?>">
+								Your browser does not support the
+								<code>audio</code> element.
+							</audio>
+						</figure>
+					<?php endforeach;
+				}
+
+				if (count($say_nodes)) {
+					echo "<h3>&lt;Say&gt; nodes</h3>";
+					foreach($say_nodes as $say_node): ?>
+						<p><strong>Say:</strong> <?= (string)$say_node ?></p>
+					<?php endforeach;
+				}
 			}
 
 			$raw = htmlspecialchars($result);
