@@ -80,9 +80,7 @@
 					foreach($play_nodes as $play_node): ?>
 						<figure>
 							<figcaption><?= (string)$play_node ?></figcaption>
-							<audio
-									controls
-									src="<?= (string)$play_node ?>">
+							<audio controls src="<?= (string)$play_node ?>">
 								Your browser does not support the
 								<code>audio</code> element.
 							</audio>
